@@ -87,40 +87,45 @@ function getTimeCodeFromNum(num) {
   ).padStart(2, 0)}`;
 }
 
-chrome.runtime.onStartup.addListener(() => {
+const commandMap = {
+  [toBackground.opened]: () => {
+    updatePopups();
+  },
+
+  [toBackground.selected]: (uri) => {
+    load(uri);
+  },
+
+  [toBackground.play]: () => {
+    play();
+  },
+
+  [toBackground.pause]: () => {
+    pause();
+  },
+
+  [toBackground.seek]: (timeToSeekOffset) => {
+    const { duration } = getInfo();
+    if (duration) {
+      const timeToSeek = timeToSeekOffset * duration;
+      seek(timeToSeek);
+    }
+  },
+
+  [toBackground.selectedProgram]: (program) => {
+    setProgram(program);
+  },
+
+  [toBackground.selectedDate]: (date) => {
+    setDate(date);
+  },
+};
+
+chrome.runtime.onInstalled.addListener(() => {
   showPageAction();
+  onCommand(commandMap);
+});
 
-  onCommand({
-    [toBackground.opened]: () => {
-      updatePopups();
-    },
-
-    [toBackground.selected]: (uri) => {
-      load(uri);
-    },
-
-    [toBackground.play]: () => {
-      play();
-    },
-
-    [toBackground.pause]: () => {
-      pause();
-    },
-
-    [toBackground.seek]: (timeToSeekOffset) => {
-      const { duration } = getInfo();
-      if (duration) {
-        const timeToSeek = timeToSeekOffset * duration;
-        seek(timeToSeek);
-      }
-    },
-
-    [toBackground.selectedProgram]: (program) => {
-      setProgram(program);
-    },
-
-    [toBackground.selectedDate]: (date) => {
-      setDate(date);
-    },
-  });
+chrome.runtime.onStartup.addListener(() => {
+  onCommand(commandMap);
 });
