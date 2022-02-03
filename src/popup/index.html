@@ -3,11 +3,38 @@
 
 <head>
     <link rel="stylesheet" href="./index.css">
+    <link rel="stylesheet" href="./player.css">
 </head>
 
 <body>
-    <div>Click to change background to wheat</div>
-    <button id="button">Click</button>
+    <h3>Hit FM Playback</h3>
+    <div id="loader">(loading...)</div>
+    <div id="audio-container">
+        <div class="audio-player">
+            <div class="timeline">
+                <div class="progress"></div>
+            </div>
+            <div class="controls">
+                <div class="play-container">
+                    <div class="toggle-play play"></div>
+                </div>
+                <div class="time">
+                    <div class="current">0:00</div>
+                    <div class="divider">/</div>
+                    <div class="length"></div>
+                </div>
+                <div class="name">Music Song</div>
+            </div>
+        </div>
+    </div>
+    <div id="container">
+        <div id="dates">
+            dates
+        </div>
+        <div id="programs">
+            programs
+        </div>
+    </div>
     <script src="./index.js"></script>
 </body>
 

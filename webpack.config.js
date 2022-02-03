@@ -1,43 +1,42 @@
-const path = require('path')
-var ZipPlugin = require('zip-webpack-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const path = require("path");
+var ZipPlugin = require("zip-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
-  mode: process.env.NODE_ENV || 'development',
+  mode: process.env.NODE_ENV || "development",
 
   entry: {
-    'background/index': './src/background/index.js',
-    'options/index': './src/options/index.js',
-    'popup/index': './src/popup/index.js'
+    "background/index": "./src/background/index.js",
+    "popup/index": "./src/popup/index.js",
   },
 
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js'
+    path: path.resolve(__dirname, "dist"),
+    filename: "[name].js",
   },
 
-  target: 'web',
+  target: "web",
 
   devtool: false,
 
   plugins: [
     new CleanWebpackPlugin({
-      cleanStaleWebpackAssets: false
+      cleanStaleWebpackAssets: false,
     }),
 
     new CopyPlugin([
       {
-        from: 'src/**/*',
-        to: '[path][name].[ext]',
+        from: "src/**/*",
+        to: "[path][name].[ext]",
         test: /([^/]+)\/(.+)\.(json|html|css|png)$/,
-        transformPath: (targetPath) => targetPath.replace('src/', '')
-      }
+        transformPath: (targetPath) => targetPath.replace("src/", ""),
+      },
     ]),
 
-    process.env.NODE_ENV === 'production' &&
+    process.env.NODE_ENV === "production" &&
       new ZipPlugin({
-        filename: 'hitfm.zip'
-      })
-  ].filter(Boolean)
-}
+        filename: "hitfm.zip",
+      }),
+  ].filter(Boolean),
+};
