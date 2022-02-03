@@ -87,9 +87,11 @@ function getTimeCodeFromNum(num) {
   ).padStart(2, 0)}`;
 }
 
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onInstalled.addListener(() => {
   showPageAction();
+});
 
+chrome.runtime.onStartup.addListener(() => {
   onCommand({
     [toBackground.opened]: () => {
       updatePopups();
