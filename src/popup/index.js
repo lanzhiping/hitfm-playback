@@ -153,8 +153,11 @@ const registerAudioEvents = () => {
       return;
     }
 
-    if (target.classList.contains("timeline")) {
-      const timelineWidth = window.getComputedStyle(target).width;
+    if (
+      target.classList.contains("timeline") ||
+      target.classList.contains("progress")
+    ) {
+      const timelineWidth = window.getComputedStyle(target.parentElement).width;
       const timeToSeek = event.offsetX / parseInt(timelineWidth);
 
       port.postMessage(buildMessage(toBackground.seek, timeToSeek));

@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "hitfm",
   "author": "lannano@qq.com",
   "description": "hitfm playback, a chrome extension",
@@ -13,7 +13,7 @@
   "permissions": [
     "activeTab",
     "declarativeContent",
-    "https://*/*"
+    "<all_urls>"
   ],
   "background": {
     "scripts": [
