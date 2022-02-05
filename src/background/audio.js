@@ -23,6 +23,15 @@ const cleanUp = () => {
 };
 
 module.exports = {
+  getInfo: () => ({
+    inited: !!audio,
+    date: audio && date,
+    program: audio && program,
+    duration: audio && audio.duration,
+    currentTime: audio && audio.currentTime,
+    isPlaying: audio && !audio.paused,
+  }),
+
   play: () => {
     if (audio) {
       audio.play();
@@ -33,17 +42,6 @@ module.exports = {
     if (audio) {
       audio.pause();
     }
-  },
-
-  getInfo: () => {
-    return {
-      inited: !!audio,
-      isPlaying: audio && !audio.paused,
-      duration: audio && audio.duration,
-      currentTime: audio && audio.currentTime,
-      date: audio && date,
-      program: audio && program,
-    };
   },
 
   load: (uri) => {
