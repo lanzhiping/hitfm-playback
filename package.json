@@ -19,7 +19,9 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "dayjs": "^1.10.7"
+  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

@@ -10,16 +10,6 @@ h3 {
   text-align: center;
   color: rgba(255, 255, 255, 1);
 }
-#loader {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 15px 4px;
-  color: rgba(255, 255, 255, 0);
-}
-#loader.loading {
-  color: rgba(255, 255, 255, 1);
-}
 
 #audio-container {
   justify-content: center;
@@ -37,7 +27,7 @@ h3 {
 }
 #container #programs {
   display: inline-block;
-  width: 40%;
+  width: 50%;
   vertical-align: top;
 }
 #dates .date,
@@ -45,9 +35,11 @@ h3 {
   padding: 10px 0;
 }
 
-#dates .date {
+#dates .date,
+#programs .program {
   border-bottom: 1px solid rgba(255, 255, 255, 0);
 }
+
 #dates .date:hover,
 #programs .program:hover {
   border-bottom: 1px solid rgba(255, 255, 255, 1);

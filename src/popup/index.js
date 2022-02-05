@@ -1,86 +1,59 @@
-const { buildMessage, toBackground } = require("../common/commands");
+const dayjs = require("dayjs");
+const {
+  weekdayPlaylist,
+  sundayPlaylist,
+  saturdayPlaylist,
+} = require("./playlist");
+const { updateBackground } = require("./updateBackground");
+const { sendEvent } = require("./googleAnalytics");
+const { toBackground } = require("../common/commands");
 
-const today = new Date();
-const oneDayOffset = 24 * 60 * 60 * 1000;
-const chinaTimeOffset = 8 * 60 * 60 * 1000;
 const datesEle = document.querySelector("#dates");
 const programsEle = document.querySelector("#programs");
 const audioEle = document.querySelector("#audio-container");
 
-const port = chrome.extension.connect({
-  name: "Sample Communication",
-});
-
 const renderDates = () => {
   const datesStr = [
-    new Date(today.getTime() + chinaTimeOffset).toISOString().split("T")[0],
-    new Date(today.getTime() - oneDayOffset + chinaTimeOffset)
-      .toISOString()
-      .split("T")[0],
-    new Date(today.getTime() - oneDayOffset * 2 + chinaTimeOffset)
-      .toISOString()
-      .split("T")[0],
-    new Date(today.getTime() - oneDayOffset * 3 + chinaTimeOffset)
-      .toISOString()
-      .split("T")[0],
-    new Date(today.getTime() - oneDayOffset * 4 + chinaTimeOffset)
-      .toISOString()
-      .split("T")[0],
-    new Date(today.getTime() - oneDayOffset * 5 + chinaTimeOffset)
-      .toISOString()
-      .split("T")[0],
+    dayjs().format("YYYY-MM-DD"),
+    dayjs().subtract(1, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(2, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(3, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(4, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(5, "d").format("YYYY-MM-DD"),
   ];
 
   const datesItems = datesStr
-    .map(
-      (dateStr) => `
-      <div class="date" data-attr="${dateStr}">${dateStr}</div>
-    `
-    )
+    .map((date) => `<div class="date" data-attr="${date}">${date}</div>`)
     .join("");
+
   datesEle.innerHTML = datesItems;
 };
 
-const buildUriFromDateAndProgram = (date, program) => {
-  const programToTimeMap = {
-    "hit music flow": "000000_060000",
-    "morning hits": "060000_070000",
-    "hit morning call": "070000_100000",
-    "at work network": "100000_130000",
-    "lazy afternoon": "130000_160000",
-    "big drive home": "160000_190000",
-    "new music express": "190000_220000",
-    "hit fm dance": "220000_230000",
-  };
-  const programLowercase = program.toLowerCase();
-  const programParam = programToTimeMap[programLowercase];
-  const programStartHour = programParam.split("0000_")[0];
-  const dateParam = date.replace(/-/g, "");
+const buildUri = (date, timeDuration) => {
+  const dateParam = dayjs(date).format("YYYYMMDD");
+  const startHour = timeDuration.split("0000_")[0];
 
-  return date <
-    new Date(today.getTime() + chinaTimeOffset).toISOString().split("T")[0] ||
-    programStartHour < today.getHours()
-    ? `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${programParam}_24_0.m4a`
+  return dayjs().isAfter(`${date} ${startHour}:00:00`)
+    ? `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${timeDuration}_24_0.m4a`
     : null;
 };
 
 const renderPrograms = (date) => {
-  const programs = [
-    "Hit Music Flow",
-    "Morning Hits",
-    "Hit Morning Call",
-    "At Work Network",
-    "Lazy Afternoon",
-    "Big Drive Home",
-    "New Music Express",
-    "Hit FM Dance",
-  ];
+  const dayOfWeek = dayjs(date).get("d");
+  const playlist =
+    dayOfWeek === 0
+      ? sundayPlaylist
+      : dayOfWeek === 6
+      ? saturdayPlaylist
+      : weekdayPlaylist;
+  const programs = Object.keys(playlist);
 
   const programItems = programs
-    .map((programStr) => {
-      const uri = buildUriFromDateAndProgram(date, programStr);
+    .map((program) => {
+      const uri = buildUri(date, playlist[program]);
+
       return uri
-        ? `<div class="program" data-attr="${uri}">${programStr}</div>`
+        ? `<div class="program" data-attr="${uri}">${program}</div>`
         : `<span></span>`;
     })
     .join("");
@@ -108,12 +81,14 @@ const registerDatesClickEvent = () => {
     target.classList.add("selected");
     renderPrograms(date);
 
-    port.postMessage(buildMessage(toBackground.selectedDate, date));
+    updateBackground(toBackground.selectedDate, date);
+
+    sendEvent("click-date", date);
   });
 };
 
 const registerProgramsClickEvents = () => {
-  programsEle.addEventListener("click", async (event) => {
+  programsEle.addEventListener("click", (event) => {
     const target = event.target;
     const uri = target.getAttribute("data-attr");
 
@@ -131,10 +106,10 @@ const registerProgramsClickEvents = () => {
     });
     target.classList.add("selected");
 
-    port.postMessage(buildMessage(toBackground.selected, uri));
-    port.postMessage(
-      buildMessage(toBackground.selectedProgram, target.innerText)
-    );
+    updateBackground(toBackground.selected, uri);
+    updateBackground(toBackground.selectedProgram, target.innerText);
+
+    sendEvent("click-program", target.innerText);
   });
 };
 
@@ -146,9 +121,11 @@ const registerAudioEvents = () => {
       const isPlaying = target.classList.contains("pause");
 
       if (isPlaying) {
-        port.postMessage(buildMessage(toBackground.pause));
+        updateBackground(toBackground.pause);
+        sendEvent("click-pause");
       } else {
-        port.postMessage(buildMessage(toBackground.play));
+        updateBackground(toBackground.play);
+        sendEvent("click-play");
       }
       return;
     }
@@ -160,7 +137,8 @@ const registerAudioEvents = () => {
       const timelineWidth = window.getComputedStyle(target.parentElement).width;
       const timeToSeek = event.offsetX / parseInt(timelineWidth);
 
-      port.postMessage(buildMessage(toBackground.seek, timeToSeek));
+      updateBackground(toBackground.seek, timeToSeek);
+      sendEvent("click-timeline");
       return;
     }
   });
@@ -171,4 +149,4 @@ registerDatesClickEvent();
 registerProgramsClickEvents();
 registerAudioEvents();
 
-port.postMessage(buildMessage(toBackground.opened));
+updateBackground(toBackground.opened);

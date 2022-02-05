@@ -9,8 +9,4 @@ module.exports = {
     selectedDate: "selectedDate",
     selectedProgram: "selectedProgram",
   },
-  buildMessage: (command, value) => ({
-    command,
-    value,
-  }),
 };
