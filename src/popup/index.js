@@ -1,5 +1,5 @@
 const dayjs = require("dayjs");
-const md5 = require('crypto-js/hmac-md5');
+const md5 = require("crypto-js/hmac-md5");
 
 const {
   weekdayPlaylist,
@@ -32,19 +32,24 @@ const renderDates = () => {
 };
 
 const buildLiveUri = () => {
-  const path = '/live/1007/64k.mp3';
-  const timestamp = dayjs().add(1, 'hours').unix().toString(16);
-  const sign = md5(`app_id=web&path=${encodeURIComponent(path)}&ts=${timestamp}`, 'Lwrpu$K5oP').toString();
+  const path = "/live/1007/64k.mp3";
+  const timestamp = dayjs().add(1, "hours").unix().toString(16);
+  const sign = md5(
+    `app_id=web&path=${encodeURIComponent(path)}&ts=${timestamp}`,
+    "Lwrpu$K5oP"
+  ).toString();
   return `https://lhttp.qingting.fm${path}?app_id=web&ts=${timestamp}&sign=${sign}`;
 };
 
 const buildUri = (date, timeDuration) => {
   const dateParam = dayjs(date).format("YYYYMMDD");
-  const [startHour, endHour] = timeDuration.split('_').map(s => s.replace('0000', ''));
+  const [startTime, endTime] = timeDuration
+    .split("_")
+    .map((s) => s.match(/.{1,2}/g).join(":"));
 
-  if (dayjs().isAfter(`${date} ${startHour}:00:00`)) {
-    if (dayjs().isBefore(`${date} ${endHour}:00:00`)) {
-      return 'live-uri';
+  if (dayjs().isAfter(`${date} ${startTime}`)) {
+    if (dayjs().isBefore(`${date} ${endTime}`)) {
+      return "live-uri";
     }
     return `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${timeDuration}_24_0.m4a`;
   }
@@ -66,7 +71,9 @@ const renderPrograms = (date) => {
       const uri = buildUri(date, playlist[program]);
 
       return uri
-        ? `<div class="program" data-attr="${uri}">${program}${uri === 'live-uri' ? '(live)' : ''}</div>`
+        ? `<div class="program" data-attr="${uri}">${program}${
+            uri === "live-uri" ? "(live)" : ""
+          }</div>`
         : `<span></span>`;
     })
     .join("");
@@ -105,7 +112,7 @@ const registerProgramsClickEvents = () => {
     const target = event.target;
     let uri = target.getAttribute("data-attr");
 
-    if (uri === 'live-uri') {
+    if (uri === "live-uri") {
       uri = buildLiveUri();
     }
 
