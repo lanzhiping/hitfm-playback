@@ -1,4 +1,6 @@
 const dayjs = require("dayjs");
+const md5 = require('crypto-js/hmac-md5');
+
 const {
   weekdayPlaylist,
   sundayPlaylist,
@@ -29,13 +31,24 @@ const renderDates = () => {
   datesEle.innerHTML = datesItems;
 };
 
+const buildLiveUri = () => {
+  const path = '/live/1007/64k.mp3';
+  const timestamp = dayjs().add(1, 'hours').unix().toString(16);
+  const sign = md5(`app_id=web&path=${encodeURIComponent(path)}&ts=${timestamp}`, 'Lwrpu$K5oP').toString();
+  return `https://lhttp.qingting.fm${path}?app_id=web&ts=${timestamp}&sign=${sign}`;
+};
+
 const buildUri = (date, timeDuration) => {
   const dateParam = dayjs(date).format("YYYYMMDD");
-  const startHour = timeDuration.split("0000_")[0];
+  const [startHour, endHour] = timeDuration.split('_').map(s => s.replace('0000', ''));
 
-  return dayjs().isAfter(`${date} ${startHour}:00:00`)
-    ? `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${timeDuration}_24_0.m4a`
-    : null;
+  if (dayjs().isAfter(`${date} ${startHour}:00:00`)) {
+    if (dayjs().isBefore(`${date} ${endHour}:00:00`)) {
+      return 'live-uri';
+    }
+    return `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${timeDuration}_24_0.m4a`;
+  }
+  return null;
 };
 
 const renderPrograms = (date) => {
@@ -53,7 +66,7 @@ const renderPrograms = (date) => {
       const uri = buildUri(date, playlist[program]);
 
       return uri
-        ? `<div class="program" data-attr="${uri}">${program}</div>`
+        ? `<div class="program" data-attr="${uri}">${program}${uri === 'live-uri' ? '(live)' : ''}</div>`
         : `<span></span>`;
     })
     .join("");
@@ -90,7 +103,11 @@ const registerDatesClickEvent = () => {
 const registerProgramsClickEvents = () => {
   programsEle.addEventListener("click", (event) => {
     const target = event.target;
-    const uri = target.getAttribute("data-attr");
+    let uri = target.getAttribute("data-attr");
+
+    if (uri === 'live-uri') {
+      uri = buildLiveUri();
+    }
 
     if (!target.classList.contains("program")) {
       return;

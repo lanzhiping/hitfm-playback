@@ -2,6 +2,11 @@ const { getInfo } = require("./audio");
 
 function parseSecondsToHMS(num) {
   let seconds = parseInt(num);
+
+  if (Number.isNaN(seconds)) {
+    return '00:00';
+  }
+
   let minutes = parseInt(seconds / 60);
   const hours = parseInt(minutes / 60);
   seconds -= minutes * 60;
