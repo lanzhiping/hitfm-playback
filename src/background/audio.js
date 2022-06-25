@@ -1,59 +1,73 @@
-let audio;
+const Hls = require("hls.js");
+
+let player;
 let date;
 let program;
 
-const createAudio = (uri) => {
-  audio = new Audio(uri);
-  audio.controls = true;
+const createAudioPlayer = (uri) => {
+  player = new Audio(uri);
+  player.controls = true;
 
   return new Promise((resolve) => {
-    audio.addEventListener("loadeddata", () => {
-      audio.play();
-      resolve(audio);
+    player.addEventListener("loadeddata", () => {
+      player.play();
+      resolve(player);
     });
   });
 };
 
-const cleanUp = () => {
-  audio.pause();
-  audio.src = "";
-  audio.load();
+const createStreamPlayer = (uri) => {
+  const hls = new Hls();
+  const video = document.createElement("video");
+  hls.loadSource(uri);
+  hls.attachMedia(video);
+  video.autoplay = true;
+  player = video;
+};
 
-  audio = null;
+const cleanUp = () => {
+  player.pause();
+  player.src = "";
+  player.load();
+
+  player = null;
 };
 
 module.exports = {
   getInfo: () => ({
-    inited: !!audio,
-    date: audio && date,
-    program: audio && program,
-    duration: audio && audio.duration,
-    currentTime: audio && audio.currentTime,
-    isPlaying: audio && !audio.paused,
+    inited: !!player,
+    date: player && date,
+    program: player && program,
+    duration: player && player.duration,
+    currentTime: player && player.currentTime,
+    isPlaying: player && !player.paused,
   }),
 
   play: () => {
-    if (audio) {
-      audio.play();
+    if (player) {
+      player.play();
     }
   },
 
   pause: () => {
-    if (audio) {
-      audio.pause();
+    if (player) {
+      player.pause();
     }
   },
 
   load: (uri) => {
-    if (audio) {
+    if (player) {
       cleanUp();
     }
-    return createAudio(uri);
+
+    return /.m3u8$/.test(uri)
+      ? createStreamPlayer(uri)
+      : createAudioPlayer(uri);
   },
 
   seek: (timeToSeek) => {
-    if (audio) {
-      audio.currentTime = timeToSeek;
+    if (player) {
+      player.currentTime = timeToSeek;
     }
   },
 

@@ -21,7 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "crypto-js": "^4.1.1",
-    "dayjs": "^1.10.7"
+    "dayjs": "^1.10.7",
+    "hls.js": "^1.1.5"
   },
   "config": {
     "commitizen": {
