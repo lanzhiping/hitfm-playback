@@ -14,15 +14,8 @@ const datesEle = document.querySelector("#dates");
 const programsEle = document.querySelector("#programs");
 const audioEle = document.querySelector("#audio-container");
 
-const renderDates = () => {
-  const datesStr = [
-    dayjs().format("YYYY-MM-DD"),
-    dayjs().subtract(1, "d").format("YYYY-MM-DD"),
-    dayjs().subtract(2, "d").format("YYYY-MM-DD"),
-    dayjs().subtract(3, "d").format("YYYY-MM-DD"),
-    dayjs().subtract(4, "d").format("YYYY-MM-DD"),
-    dayjs().subtract(5, "d").format("YYYY-MM-DD"),
-  ];
+const renderOnlyOneDayWithoutPlayback = () => {
+  const datesStr = [dayjs().format("YYYY-MM-DD")];
 
   const datesItems = datesStr
     .map((date) => `<div class="date" data-attr="${date}">${date}</div>`)
@@ -31,7 +24,9 @@ const renderDates = () => {
   datesEle.innerHTML = datesItems;
 };
 
-const buildLiveUri = () => {
+const buildLiveUri = () => "https://sk.cri.cn/887.m3u8";
+
+const buildQingtingLiveUri = () => {
   const path = "/live/1007/64k.mp3";
   const timestamp = dayjs().add(1, "hours").unix().toString(16);
   const sign = md5(
@@ -41,7 +36,7 @@ const buildLiveUri = () => {
   return `https://lhttp.qingting.fm${path}?app_id=web&ts=${timestamp}&sign=${sign}`;
 };
 
-const buildUri = (date, timeDuration) => {
+const buildQingtingUri = (date, timeDuration) => {
   const dateParam = dayjs(date).format("YYYYMMDD");
   const [startTime, endTime] = timeDuration
     .split("_")
@@ -68,7 +63,7 @@ const renderPrograms = (date) => {
 
   const programItems = programs
     .map((program) => {
-      const uri = buildUri(date, playlist[program]);
+      const uri = buildQingtingUri(date, playlist[program]);
 
       return uri
         ? `<div class="program" data-attr="${uri}">${program}${
@@ -168,7 +163,7 @@ const registerAudioEvents = () => {
   });
 };
 
-renderDates();
+renderOnlyOneDayWithoutPlayback();
 registerDatesClickEvent();
 registerProgramsClickEvents();
 registerAudioEvents();
