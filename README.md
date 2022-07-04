@@ -1,9 +1,3 @@
-## Note
-
-This extension is built on top of the QingtingFM stream, but due to the policy regulation, the HitFM stream is offboarded in QingtingFM, meaning that I have to sadly say that the most important feature **PLAYBACK** is down as well.
-
-However, you may continue to enjoy the live steam.
-
 # Hit FM Playback
 
 This is a chrome extension, where you can listen to the [HitFM](https://weibo.com/u/1712356403) playback (cheers to HitFM fans)

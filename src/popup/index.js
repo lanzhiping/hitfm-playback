@@ -15,7 +15,14 @@ const programsEle = document.querySelector("#programs");
 const audioEle = document.querySelector("#audio-container");
 
 const renderOnlyOneDayWithoutPlayback = () => {
-  const datesStr = [dayjs().format("YYYY-MM-DD")];
+  const datesStr = [
+    dayjs().format("YYYY-MM-DD"),
+    dayjs().subtract(1, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(2, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(3, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(4, "d").format("YYYY-MM-DD"),
+    dayjs().subtract(5, "d").format("YYYY-MM-DD"),
+  ];
 
   const datesItems = datesStr
     .map((date) => `<div class="date" data-attr="${date}">${date}</div>`)
@@ -46,7 +53,7 @@ const buildQingtingUri = (date, timeDuration) => {
     if (dayjs().isBefore(`${date} ${endTime}`)) {
       return "live-uri";
     }
-    return `https://lcache.qtfm.cn/cache/${dateParam}/1007/1007_${dateParam}_${timeDuration}_24_0.m4a`;
+    return `https://lcache.qtfm.cn/cache/${dateParam}/15318703/15318703_${dateParam}_${timeDuration}_24_0.m4a`;
   }
   return null;
 };
